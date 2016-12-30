@@ -3,6 +3,7 @@
 //Enumerados: PlayerState son los estado por los que pasa el player. Directions son las direcciones a las que se puede
 //mover el player.
 var PlayerState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
+var EnemyState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
 var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 
 //Scena de juego.
@@ -14,11 +15,19 @@ var PlayScene = {
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
 
+    _enemyrush: {}, //player
+    _enemyspeed: 300, //velocidad del player
+    _enemyjumpSpeed: 600, //velocidad de salto
+    _enemyjumpHight: 150, //altura máxima del salto.
+    _EnemyState: PlayerState.STOP, //estado del player
+    _enemydirection: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
+
     //Método constructor...
   create: function () {
       //Creamos al player con un sprite por defecto.
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
       this._rush = this.game.add.sprite(10,10,'rush');
+      this._enemyrush = this.game.add.sprite('enemigo');
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
       this.map = this.game.add.tilemap('tilemap');
       this.map.addTilesetImage('patrones','tiles');
