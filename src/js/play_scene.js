@@ -5,7 +5,8 @@
 var PlayerState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
 var EnemyState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
 var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
-
+var regalos;
+ 
 //Scena de juego.
 var PlayScene = {
     _rush: {}, //player
@@ -22,12 +23,16 @@ var PlayScene = {
     _EnemyState: PlayerState.STOP, //estado del player
     _enemydirection: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
 
+
     //Método constructor...
   create: function () {
       //Creamos al player con un sprite por defecto.
+     // regalos = game.add.group();
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
       this._rush = this.game.add.sprite(10,10,'rush');
-      this._enemyrush = this.game.add.sprite('enemigo');
+      this._enemyrush = this.game.add.sprite(100,200,'enemigo');
+     
+      //this._enemyrush.scale.setTo(0.1,0.1);
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
       this.map = this.game.add.tilemap('tilemap');
       this.map.addTilesetImage('patrones','tiles');
@@ -61,7 +66,12 @@ var PlayScene = {
     update: function () {
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
+        this.game.physics.arcade.collide(this._enemyrush, this.groundLayer);
+        this.game.physics.arcade.collide(this._rush, this._enemyrush);
+
         var movement = this.GetMovement();
+        var present = this.DropPresent();
+       
         //transitions
         switch(this._playerState)
         {
@@ -159,7 +169,7 @@ var PlayScene = {
         
     isJumping: function(collisionWithTilemap){
         return this.canJump(collisionWithTilemap) && 
-            this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR);
+            this.game.input.keyboard.isDown(Phaser.Keyboard.UP);
     },
         
     GetMovement: function(){
@@ -174,6 +184,17 @@ var PlayScene = {
         }
         return movement;
     },
+    DropPresent: function(){ 
+    	
+    	  if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
+    	  	// var present = regalos.create(this._rush.x,this._rush.y,'regalo');
+    	  	this._regalo = this.game.add.sprite(this._rush.x,this._rush.y,'regalo');
+    	  	
+    	  	 //game.physics.arcade.enable(_regalo);
+   			// _regalo.body.gravity.y = 100;
+    	  }
+   
+    },
     //configure the scene
     configure: function(){
         //Start the Arcade Physics systems
@@ -181,11 +202,18 @@ var PlayScene = {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.stage.backgroundColor = '#a9f0ff';
         this.game.physics.arcade.enable(this._rush);
+        this.game.physics.arcade.enable(this._enemyrush);
+    //    this.game.physics.arcade.enable(this._regalo);
         
         this._rush.body.bounce.y = 0.2;
         this._rush.body.gravity.y = 20000;
         this._rush.body.gravity.x = 0;
         this._rush.body.velocity.x = 0;
+
+        this._enemyrush.body.bounce.y = 0.2;
+        this._enemyrush.body.gravity.y = 1000;
+        this._enemyrush.body.gravity.x = 0;
+        this._enemyrush.body.velocity.x = -10;
         this.game.camera.follow(this._rush);
     },
     //move the player
