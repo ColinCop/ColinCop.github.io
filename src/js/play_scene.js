@@ -109,10 +109,13 @@ var PlayScene = {
                     if(this._rush.scale.x < 0)
                         this._rush.scale.x *= -1;
                 }
-                else{
+                else if (movement === Direction.LEFT){
                     moveDirection.x = -this._speed;
                     if(this._rush.scale.x > 0)
                         this._rush.scale.x *= -1; 
+                }
+                else {
+                	moveDirection.x = 0;
                 }
                 if(this._playerState === PlayerState.JUMP)
                     moveDirection.y = -this._jumpSpeed;

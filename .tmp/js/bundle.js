@@ -75,6 +75,7 @@ var PreloaderScene = {
       //como descriptor de la animación.
       this.game.load.tilemap('tilemap','images/map.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/simples_pimples.png');
+      this.game.load.image('regalo','images/Present_sprite.png');
       this.game.load.atlas('rush', 'images/rush_spritesheet.png', 'images/rush_spritesheet.json' ,Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       //TODO 2.2a Escuchar el evento onLoadComplete con el mismo método loadComplete que el state 'play'
       this.load.onLoadComplete.add(this.loadComplete, this);
@@ -273,10 +274,13 @@ var PlayScene = {
                     if(this._rush.scale.x < 0)
                         this._rush.scale.x *= -1;
                 }
-                else{
+                else if (movement === Direction.LEFT){
                     moveDirection.x = -this._speed;
                     if(this._rush.scale.x > 0)
                         this._rush.scale.x *= -1; 
+                }
+                else {
+                	moveDirection.x = 0;
                 }
                 if(this._playerState === PlayerState.JUMP)
                     moveDirection.y = -this._jumpSpeed;
