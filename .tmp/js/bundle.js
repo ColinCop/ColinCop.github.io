@@ -172,8 +172,8 @@ module.exports = MenuScene;
 var PlayerState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
 var EnemyState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
 var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
-var regalos;
- 
+
+ var regalitos;
 //Scena de juego.
 var PlayScene = {
     _rush: {}, //player
@@ -193,6 +193,8 @@ var PlayScene = {
 
     //Método constructor...
   create: function () {
+  	regalitos = this.game.add.group();
+  	
       //Creamos al player con un sprite por defecto.
      // regalos = game.add.group();
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
@@ -214,6 +216,7 @@ var PlayScene = {
       this.death.visible = false;
       //Cambia la escala a x3.
       this.groundLayer.setScale(3,3);
+
       this.backgroundLayer.setScale(3,3);
       this.death.setScale(3,3);
       
@@ -226,7 +229,11 @@ var PlayScene = {
                     Phaser.Animation.generateFrameNames('rush_idle',1,1,'',2),0,false);
       this._rush.animations.add('jump',
                      Phaser.Animation.generateFrameNames('rush_jump',2,2,'',2),0,false);
+    var key1 = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    key1.onDown.add(DropPresent, this);
+
       this.configure();
+
   },
     
     //IS called one per frame.
@@ -234,10 +241,15 @@ var PlayScene = {
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
         this.game.physics.arcade.collide(this._enemyrush, this.groundLayer);
+        this.game.physics.arcade.collide(regalitos, this.groundLayer);
+         
         this.game.physics.arcade.collide(this._rush, this._enemyrush);
+        
+	
 
         var movement = this.GetMovement();
-        var present = this.DropPresent();
+      
+      
        
         //transitions
         switch(this._playerState)
@@ -328,8 +340,15 @@ var PlayScene = {
     checkPlayerFell: function(){
         if(this.game.physics.arcade.collide(this._rush, this.death))
             this.onPlayerFell();
+        else if(this.game.physics.arcade.collide(this._enemyrush, this.death))
+        	this._enemyrush.destroy();
+         for (var reg in regalitos){
+        	if(this.game.physics.arcade.collide(reg, this.death))
+        	regalitos.remove(reg);
+        }
+      
     },
-        
+
     isStanding: function(){
         return this._rush.body.blocked.down || this._rush.body.touching.down
     },
@@ -351,17 +370,7 @@ var PlayScene = {
         }
         return movement;
     },
-    DropPresent: function(){ 
-    	
-    	  if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-    	  	// var present = regalos.create(this._rush.x,this._rush.y,'regalo');
-    	  	this._regalo = this.game.add.sprite(this._rush.x,this._rush.y,'regalo');
-    	  	
-    	  	 //game.physics.arcade.enable(_regalo);
-   			// _regalo.body.gravity.y = 100;
-    	  }
-   
-    },
+  
     //configure the scene
     configure: function(){
         //Start the Arcade Physics systems
@@ -370,7 +379,7 @@ var PlayScene = {
         this.game.stage.backgroundColor = '#a9f0ff';
         this.game.physics.arcade.enable(this._rush);
         this.game.physics.arcade.enable(this._enemyrush);
-    //    this.game.physics.arcade.enable(this._regalo);
+    
         
         this._rush.body.bounce.y = 0.2;
         this._rush.body.gravity.y = 20000;
@@ -381,6 +390,7 @@ var PlayScene = {
         this._enemyrush.body.gravity.y = 1000;
         this._enemyrush.body.gravity.x = 0;
         this._enemyrush.body.velocity.x = -10;
+        this._enemyrush.body.drag.setTo(100,0);
         this.game.camera.follow(this._rush);
     },
     //move the player
@@ -401,6 +411,25 @@ var PlayScene = {
     //TODO 9 destruir los recursos tilemap, tiles y NO(logo).
 
 };
+  function DropPresent(){ 
+    	
+    	
+    	  	var regali = regalitos.create(this._rush.x,this._rush.y,'regalo');    	  	
+    	  	 this.game.physics.arcade.enable(regali);
+   			 regali.body.gravity.y = 1000;
+   			 regali.body.bounce.setTo(0.3,0.3);
+   			 regali.body.velocity.x = this._rush.body.velocity.x/2;
+   			 regali.body.drag.setTo(100,0);
+   			setTimeout(function(){regali.destroy()},3000);
+    
+
+    	  
+   
+    }
+    function perderRegalo(regalo){ 
+    	regalitos.remove(regalo);
+    	  
+    }
 
 module.exports = PlayScene;
 
