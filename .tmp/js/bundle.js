@@ -77,7 +77,7 @@ var PreloaderScene = {
       this.game.load.tilemap('tilemap','images/map.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/simples_pimples.png');
       this.game.load.image('regalo','images/Present_sprite.png');
-      this.game.load.image('enemigo','images/Enemy.png');
+      this.game.load.image('enemigo','images/caparazon.png');
       this.game.load.atlas('rush', 'images/rush_spritesheet.png', 'images/rush_spritesheet.json' ,Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       //TODO 2.2a Escuchar el evento onLoadComplete con el mismo método loadComplete que el state 'play'
       this.load.onLoadComplete.add(this.loadComplete, this);
@@ -199,8 +199,8 @@ var PlayScene = {
      // regalos = game.add.group();
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
       this._rush = this.game.add.sprite(10,10,'rush');
-      this._enemyrush = this.game.add.sprite(100,200,'enemigo');
-     
+      this._enemyrush = this.game.add.sprite(300,200,'enemigo');
+     this._enemyrush.scale.setTo(0.08,0.08);
       //this._enemyrush.scale.setTo(0.1,0.1);
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
       this.map = this.game.add.tilemap('tilemap');
@@ -243,13 +243,12 @@ var PlayScene = {
         this.game.physics.arcade.collide(this._enemyrush, this.groundLayer);
         this.game.physics.arcade.collide(regalitos, this.groundLayer);
          
-        this.game.physics.arcade.collide(this._rush, this._enemyrush);
-        
-	
+        //this.game.physics.arcade.collide(this._rush, this._enemyrush);
+		this.game.physics.arcade.collide(this.death,regalitos,perderRegalo,null,this);
 
         var movement = this.GetMovement();
       
-      
+       this._enemyrush.body.velocity.x = -50;
        
         //transitions
         switch(this._playerState)
@@ -338,14 +337,11 @@ var PlayScene = {
     },
     
     checkPlayerFell: function(){
-        if(this.game.physics.arcade.collide(this._rush, this.death))
+        if(this.game.physics.arcade.collide(this._rush, this.death) || this.game.physics.arcade.collide(this._rush, this._enemyrush) )
             this.onPlayerFell();
         else if(this.game.physics.arcade.collide(this._enemyrush, this.death))
         	this._enemyrush.destroy();
-         for (var reg in regalitos){
-        	if(this.game.physics.arcade.collide(reg, this.death))
-        	regalitos.remove(reg);
-        }
+        
       
     },
 
@@ -381,7 +377,7 @@ var PlayScene = {
         this.game.physics.arcade.enable(this._enemyrush);
     
         
-        this._rush.body.bounce.y = 0.2;
+        this._rush.body.bounce.y = 1;
         this._rush.body.gravity.y = 20000;
         this._rush.body.gravity.x = 0;
         this._rush.body.velocity.x = 0;
@@ -389,7 +385,7 @@ var PlayScene = {
         this._enemyrush.body.bounce.y = 0.2;
         this._enemyrush.body.gravity.y = 1000;
         this._enemyrush.body.gravity.x = 0;
-        this._enemyrush.body.velocity.x = -10;
+        this._enemyrush.body.velocity.x = -50;
         this._enemyrush.body.drag.setTo(100,0);
         this.game.camera.follow(this._rush);
     },
@@ -414,7 +410,8 @@ var PlayScene = {
   function DropPresent(){ 
     	
     	
-    	  	var regali = regalitos.create(this._rush.x,this._rush.y,'regalo');    	  	
+    	  	var regali = regalitos.create(this._rush.x,this._rush.y,'regalo');    
+
     	  	 this.game.physics.arcade.enable(regali);
    			 regali.body.gravity.y = 1000;
    			 regali.body.bounce.setTo(0.3,0.3);
@@ -427,7 +424,7 @@ var PlayScene = {
    
     }
     function perderRegalo(regalo){ 
-    	regalitos.remove(regalo);
+    	regalo.kill();
     	  
     }
 
