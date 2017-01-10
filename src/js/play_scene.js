@@ -31,27 +31,40 @@ var PlayScene = {
       //Creamos al player con un sprite por defecto.
      // regalos = game.add.group();
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
-      this._rush = this.game.add.sprite(10,10,'rush');
+      this._rush = this.game.add.sprite(10,1000,'rush');
       this._enemyrush = this.game.add.sprite(300,200,'enemigo');
      this._enemyrush.scale.setTo(0.08,0.08);
-      //this._enemyrush.scale.setTo(0.1,0.1);
+     this._rush.scale.setTo(2,2);
+    
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
       this.map = this.game.add.tilemap('tilemap');
-      this.map.addTilesetImage('patrones','tiles');
+    //  this.map.addTilesetImage('patrones','tiles');
+      this.map.addTilesetImage('kek','madera');
+      this.map.addTilesetImage('casa','ladrillos');
+      this.map.addTilesetImage('Tileset','chimeneas');
+      this.map.addTilesetImage('roca','roca');
+
+
+
+
       //Creacion de las layers
-      this.backgroundLayer = this.map.createLayer('BackgroundLayer');
+    this.backgroundLayer = this.map.createLayer('BackGroundLayer');
+     this.groundLayer2 = this.map.createLayer('GroundLayer2');
       this.groundLayer = this.map.createLayer('GroundLayer');
+      this.chimeneasLayer = this.map.createLayer('Chimeneas');
+     
       //plano de muerte
       this.death = this.map.createLayer('Death');
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
       this.map.setCollisionBetween(1, 5000, true, 'Death');
       this.map.setCollisionBetween(1, 5000, true, 'GroundLayer');
-      this.death.visible = false;
+      this.map.setCollisionBetween(1, 5000, true, 'GroundLayer2');
+      //this.death.visible = false;
       //Cambia la escala a x3.
-      this.groundLayer.setScale(3,3);
+      this.groundLayer.setScale(1,1);
 
-      this.backgroundLayer.setScale(3,3);
-      this.death.setScale(3,3);
+      this.backgroundLayer.setScale(1,1);
+      this.death.setScale(1,1);
       
       //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
       
@@ -66,6 +79,10 @@ var PlayScene = {
     key1.onDown.add(DropPresent, this);
 
       this.configure();
+      this.groundLayer.resizeWorld();
+     // debug.log(this.groundLayer.scale());
+      this.death.resizeWorld();
+      this.groundLayer2.resizeWorld();
 
   },
     
@@ -73,6 +90,8 @@ var PlayScene = {
     update: function () {
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
+        this.game.physics.arcade.collide(this._rush, this.groundLayer2);
+        this.game.physics.arcade.collide(this._rush, this.chimeneasLayer);
         this.game.physics.arcade.collide(this._enemyrush, this.groundLayer);
         this.game.physics.arcade.collide(regalitos, this.groundLayer);
          
