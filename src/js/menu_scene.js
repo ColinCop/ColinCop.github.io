@@ -3,7 +3,7 @@ var MenuScene = {
         this.game.world.setBounds(0,0,800,600);
         var logo = this.game.add.sprite(this.game.world.centerX, 
                                         this.game.world.centerY, 
-                                        'logo');
+                                        'ss');
         logo.anchor.setTo(0.5, 0.5);
         var buttonStart = this.game.add.button(this.game.world.centerX, 
                                                this.game.world.centerY, 

@@ -2,19 +2,20 @@
 var GameOver = {
     create: function () {
         console.log("Game Over");
-        var button = this.game.add.button(400, 300, 
+        this._baby = this.game.add.sprite(0,0,'bb');
+        var button = this.game.add.button(100, 400, 
                                           'button', 
                                           this.actionOnClick, 
                                           this, 2, 1, 0);
         button.anchor.set(0.5);
-        var goText = this.game.add.text(400, 100, "GameOver");
+        var goText = this.game.add.text(400, 200, "You let the children without presents...");
         var text = this.game.add.text(0, 0, "Reset Game");
         text.anchor.set(0.5);
         goText.anchor.set(0.5);
         button.addChild(text);
         
         //TODO 8 crear un boton con el texto 'Return Main Menu' que nos devuelva al menu del juego.
-        var reseT = this.game.add.button(400,400,'button',this.reset,this,2,1,0);
+        var reseT = this.game.add.button(700,400,'button',this.reset,this,2,1,0);
         reseT.anchor.set(0.5);
         var texto = this.game.add.text(0,0 ,"Main Menu");
         texto.anchor.set(0.5);
@@ -49,6 +50,7 @@ var BootScene = {
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
 
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
+     this.game.load.image('ss','images/savesanta.png');
     this.game.load.image('logo', 'images/phaser.png');
   },
 
@@ -74,17 +76,19 @@ var PreloaderScene = {
       //la imagen 'images/simples_pimples.png' con el nombre de la cache 'tiles' y
       // el atlasJSONHash con 'images/rush_spritesheet.png' como imagen y 'images/rush_spritesheet.json'
       //como descriptor de la animación.
-      this.game.load.tilemap('tilemap','images/ma.json', null, Phaser.Tilemap.TILED_JSON);
+      this.game.load.tilemap('tilemap','images/map.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/simples_pimples.png');
       this.game.load.image('roca', 'images/roca.png');
       this.game.load.image('chimeneas', 'images/Tileset.png');
       this.game.load.image('madera', 'images/Tileset1.png');
       this.game.load.image('ladrillos', 'images/casa.jpg');
-
-
+      this.game.load.image('bb','images/baby.jpg');
+       this.game.load.image('happy','images/happy.jpg');
+     
       this.game.load.image('regalo','images/Present_sprite.png');
       this.game.load.image('enemigo','images/caparazon.png');
-      this.game.load.atlas('rush', 'images/rush_spritesheet.png', 'images/rush_spritesheet.json' ,Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
+      this.game.load.image('rush','images/santa.png');
+      //this.game.load.atlas('rush', 'images/rush_spritesheet.png', 'images/rush_spritesheet.json' ,Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       //TODO 2.2a Escuchar el evento onLoadComplete con el mismo método loadComplete que el state 'play'
       this.load.onLoadComplete.add(this.loadComplete, this);
 
@@ -150,7 +154,7 @@ var MenuScene = {
         this.game.world.setBounds(0,0,800,600);
         var logo = this.game.add.sprite(this.game.world.centerX, 
                                         this.game.world.centerY, 
-                                        'logo');
+                                        'ss');
         logo.anchor.setTo(0.5, 0.5);
         var buttonStart = this.game.add.button(this.game.world.centerX, 
                                                this.game.world.centerY, 
@@ -180,12 +184,14 @@ var EnemyState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
 var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 
  var regalitos;
+ var puntos = 0;
+ var scoreText;
 //Scena de juego.
 var PlayScene = {
     _rush: {}, //player
-    _speed: 300, //velocidad del player
-    _jumpSpeed: 600, //velocidad de salto
-    _jumpHight: 150, //altura máxima del salto.
+    _speed: 500, //velocidad del player
+    _jumpSpeed: 800, //velocidad de salto
+    _jumpHight: 250, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
 
@@ -200,14 +206,16 @@ var PlayScene = {
     //Método constructor...
   create: function () {
   	regalitos = this.game.add.group();
-  	
+  	scoreText = this.game.add.text(16, 1000, 'score: 0', { fontSize: '32px', fill: '#000' });
+
+  
       //Creamos al player con un sprite por defecto.
      // regalos = game.add.group();
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
-      this._rush = this.game.add.sprite(10,1000,'rush');
+      this._rush = this.game.add.sprite(10,900,'rush');
       this._enemyrush = this.game.add.sprite(300,200,'enemigo');
      this._enemyrush.scale.setTo(0.08,0.08);
-     this._rush.scale.setTo(2,2);
+     //this._rush.scale.setTo(2.3,2.3);
     
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
       this.map = this.game.add.tilemap('tilemap');
@@ -230,26 +238,30 @@ var PlayScene = {
       this.death = this.map.createLayer('Death');
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
       this.map.setCollisionBetween(1, 5000, true, 'Death');
+      this.map.setCollisionBetween(1, 5000, true, 'Chimeneas');
       this.map.setCollisionBetween(1, 5000, true, 'GroundLayer');
       this.map.setCollisionBetween(1, 5000, true, 'GroundLayer2');
       //this.death.visible = false;
       //Cambia la escala a x3.
       this.groundLayer.setScale(1,1);
-
       this.backgroundLayer.setScale(1,1);
       this.death.setScale(1,1);
       
       //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
       
       //nombre de la animación, frames, framerate, isloop
-      this._rush.animations.add('run',
+     /* this._rush.animations.add('run',
                     Phaser.Animation.generateFrameNames('rush_run',1,5,'',2),10,true);
       this._rush.animations.add('stop',
                     Phaser.Animation.generateFrameNames('rush_idle',1,1,'',2),0,false);
       this._rush.animations.add('jump',
                      Phaser.Animation.generateFrameNames('rush_jump',2,2,'',2),0,false);
+                     */
     var key1 = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     key1.onDown.add(DropPresent, this);
+
+     var key2 = this.game.input.keyboard.addKey(Phaser.Keyboard.ESCAPE);
+    key2.onDown.add(Pause, this);
 
       this.configure();
       this.groundLayer.resizeWorld();
@@ -263,24 +275,27 @@ var PlayScene = {
     update: function () {
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
-        this.game.physics.arcade.collide(this._rush, this.groundLayer2);
-        this.game.physics.arcade.collide(this._rush, this.chimeneasLayer);
+        var collisionWithTilemap1 =this.game.physics.arcade.collide(this._rush, this.groundLayer2);
+         var collisionWithTilemap2 =this.game.physics.arcade.collide(this._rush, this.chimeneasLayer);
         this.game.physics.arcade.collide(this._enemyrush, this.groundLayer);
         this.game.physics.arcade.collide(regalitos, this.groundLayer);
          
-        //this.game.physics.arcade.collide(this._rush, this._enemyrush);
+        
 		this.game.physics.arcade.collide(this.death,regalitos,perderRegalo,null,this);
+		this.game.physics.arcade.collide(this.chimeneasLayer,regalitos,newPremio,null,this);
 
         var movement = this.GetMovement();
       
        this._enemyrush.body.velocity.x = -50;
-       
+       scoreText.x = this._rush.x -380;
+       scoreText.y = this._rush.y -300;
+
         //transitions
         switch(this._playerState)
         {
             case PlayerState.STOP:
             case PlayerState.RUN:
-                if(this.isJumping(collisionWithTilemap)){
+                if(this.isJumping(collisionWithTilemap,collisionWithTilemap1,collisionWithTilemap2)){
                     this._playerState = PlayerState.JUMP;
                     this._initialJumpHeight = this._rush.y;
                     this._rush.animations.play('jump');
@@ -352,8 +367,9 @@ var PlayScene = {
     },
     
     
-    canJump: function(collisionWithTilemap){
-        return this.isStanding() && collisionWithTilemap || this._jamping;
+    canJump: function(collisionWithTilemap,collisionWithTilemap1,collisionWithTilemap2){
+        return this.isStanding() && (collisionWithTilemap ||collisionWithTilemap1 ||
+        collisionWithTilemap2);
     },
     
     onPlayerFell: function(){
@@ -374,8 +390,8 @@ var PlayScene = {
         return this._rush.body.blocked.down || this._rush.body.touching.down
     },
         
-    isJumping: function(collisionWithTilemap){
-        return this.canJump(collisionWithTilemap) && 
+    isJumping: function(collisionWithTilemap,collisionWithTilemap1,collisionWithTilemap2){
+        return this.canJump(collisionWithTilemap,collisionWithTilemap1,collisionWithTilemap2) && 
             this.game.input.keyboard.isDown(Phaser.Keyboard.UP);
     },
         
@@ -397,7 +413,7 @@ var PlayScene = {
         //Start the Arcade Physics systems
         this.game.world.setBounds(0, 0, 2400, 160);
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
-        this.game.stage.backgroundColor = '#a9f0ff';
+        this.game.stage.backgroundColor = '#c9f0ff';
         this.game.physics.arcade.enable(this._rush);
         this.game.physics.arcade.enable(this._enemyrush);
     
@@ -426,7 +442,7 @@ var PlayScene = {
         
         this.tilemap.destroy();
         this.tiles.destroy();
-        this.game.world.setBounds(0,0,800,600);
+       // this.game.world.setBounds(0,0,800,600);
        
     }
     //TODO 9 destruir los recursos tilemap, tiles y NO(logo).
@@ -436,7 +452,7 @@ var PlayScene = {
     	
     	
     	  	var regali = regalitos.create(this._rush.x,this._rush.y,'regalo');    
-
+    	  	regali.scale.setTo(2,2);
     	  	 this.game.physics.arcade.enable(regali);
    			 regali.body.gravity.y = 1000;
    			 regali.body.bounce.setTo(0.3,0.3);
@@ -451,6 +467,14 @@ var PlayScene = {
     function perderRegalo(regalo){ 
     	regalo.kill();
     	  
+    }
+    function newPremio(regalo){
+    	puntos++;
+    	regalo.kill();
+    	scoreText.text = 'Score = ' + puntos;
+    }
+    function Pause(){
+    	this.game.paused = !this.game.paused;
     }
 
 module.exports = PlayScene;
