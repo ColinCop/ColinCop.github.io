@@ -28,8 +28,9 @@ var PlayScene = {
 
     //Método constructor...
   create: function () {
+  	puntos = 0;
   	regalitos = this.game.add.group();
-  	scoreText = this.game.add.text(16, 1000, 'score: 0', { fontSize: '32px', fill: '#000' });
+  	scoreText = this.game.add.text(16, 1000, 'Score: 0', { fontSize: '32px', fill: '#000' });
 
   
       //Creamos al player con un sprite por defecto.
@@ -295,6 +296,8 @@ var PlayScene = {
     	puntos++;
     	regalo.kill();
     	scoreText.text = 'Score = ' + puntos;
+    	if(puntos === 10)
+    		this.game.state.start('gg');
     }
     function Pause(){
     	this.game.paused = !this.game.paused;

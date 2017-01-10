@@ -6,6 +6,7 @@
 var gameOver = require ('./gameover_scene.js');
 var playScene = require ('./play_scene.js');
 var menuScene = require ('./menu_scene.js');
+var ggScene = require ('./gg_scene.js');
 
 
 
@@ -108,6 +109,7 @@ game.state.add('menu', menuScene);
 game.state.add('preloader', PreloaderScene);
 game.state.add('play', playScene);
 game.state.add('gameOver', gameOver);
+game.state.add('gg', ggScene);
 //TODO 1.3 iniciar el state 'boot'. 
 game.state.start('boot');
     

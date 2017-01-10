@@ -33,6 +33,40 @@ reset: function(){
 
 module.exports = GameOver;
 },{}],2:[function(require,module,exports){
+var GameOver = {
+    create: function () {
+        console.log("Congratulations");
+        this._baby = this.game.add.sprite(0,0,'happy');
+        var button = this.game.add.button(100, 400, 
+                                          'button', 
+                                          this.actionOnClick, 
+                                          this, 2, 1, 0);
+        button.anchor.set(0.5);
+        var goText = this.game.add.text(400, 50, "Congratulations, you did it!");
+        var text = this.game.add.text(0, 0, "Reset Game");
+        text.anchor.set(0.5);
+        goText.anchor.set(0.5);
+        button.addChild(text);
+        
+        //TODO 8 crear un boton con el texto 'Return Main Menu' que nos devuelva al menu del juego.
+        var reseT = this.game.add.button(700,400,'button',this.reset,this,2,1,0);
+        reseT.anchor.set(0.5);
+        var texto = this.game.add.text(0,0 ,"Main Menu");
+        texto.anchor.set(0.5);
+        reseT.addChild(texto);
+    },
+    
+    //TODO 7 declarar el callback del boton.
+actionOnClick: function(){
+    this.game.state.start('play');
+},
+reset: function(){
+  this.game.state.start('menu');
+}
+};
+
+module.exports = GameOver;
+},{}],3:[function(require,module,exports){
 'use strict';
 
 //TODO 1.1 Require de las escenas, play_scene, gameover_scene y menu_scene.
@@ -41,6 +75,7 @@ module.exports = GameOver;
 var gameOver = require ('./gameover_scene.js');
 var playScene = require ('./play_scene.js');
 var menuScene = require ('./menu_scene.js');
+var ggScene = require ('./gg_scene.js');
 
 
 
@@ -143,12 +178,13 @@ game.state.add('menu', menuScene);
 game.state.add('preloader', PreloaderScene);
 game.state.add('play', playScene);
 game.state.add('gameOver', gameOver);
+game.state.add('gg', ggScene);
 //TODO 1.3 iniciar el state 'boot'. 
 game.state.start('boot');
     
 };
 
-},{"./gameover_scene.js":1,"./menu_scene.js":3,"./play_scene.js":4}],3:[function(require,module,exports){
+},{"./gameover_scene.js":1,"./gg_scene.js":2,"./menu_scene.js":4,"./play_scene.js":5}],4:[function(require,module,exports){
 var MenuScene = {
     create: function () {
         this.game.world.setBounds(0,0,800,600);
@@ -174,7 +210,7 @@ var MenuScene = {
 };
 
 module.exports = MenuScene;
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 //Enumerados: PlayerState son los estado por los que pasa el player. Directions son las direcciones a las que se puede
@@ -205,8 +241,9 @@ var PlayScene = {
 
     //Método constructor...
   create: function () {
+  	puntos = 0;
   	regalitos = this.game.add.group();
-  	scoreText = this.game.add.text(16, 1000, 'score: 0', { fontSize: '32px', fill: '#000' });
+  	scoreText = this.game.add.text(16, 1000, 'Score: 0', { fontSize: '32px', fill: '#000' });
 
   
       //Creamos al player con un sprite por defecto.
@@ -472,6 +509,8 @@ var PlayScene = {
     	puntos++;
     	regalo.kill();
     	scoreText.text = 'Score = ' + puntos;
+    	if(puntos === 10)
+    		this.game.state.start('gg');
     }
     function Pause(){
     	this.game.paused = !this.game.paused;
@@ -479,4 +518,4 @@ var PlayScene = {
 
 module.exports = PlayScene;
 
-},{}]},{},[2]);
+},{}]},{},[3]);
