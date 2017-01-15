@@ -50,7 +50,7 @@ var PreloaderScene = {
       this.game.load.image('ladrillos', 'images/casa.jpg');
       this.game.load.image('bb','images/baby.jpg');
        this.game.load.image('happy','images/happy.jpg');
-     
+     this.game.load.image('trineo','images/trineo.png');
       this.game.load.image('regalo','images/Present_sprite.png');
       this.game.load.image('enemigo','images/caparazon.png');
       this.game.load.image('rush','images/santa.png');

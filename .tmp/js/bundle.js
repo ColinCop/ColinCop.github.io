@@ -119,7 +119,7 @@ var PreloaderScene = {
       this.game.load.image('ladrillos', 'images/casa.jpg');
       this.game.load.image('bb','images/baby.jpg');
        this.game.load.image('happy','images/happy.jpg');
-     
+     this.game.load.image('trineo','images/trineo.png');
       this.game.load.image('regalo','images/Present_sprite.png');
       this.game.load.image('enemigo','images/caparazon.png');
       this.game.load.image('rush','images/santa.png');
@@ -222,6 +222,8 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
  var regalitos;
  var puntos = 0;
  var scoreText;
+ var coor = 0;
+ var puedeganar = false;
 //Scena de juego.
 var PlayScene = {
     _rush: {}, //player
@@ -251,6 +253,8 @@ var PlayScene = {
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
       this._rush = this.game.add.sprite(10,900,'rush');
       this._enemyrush = this.game.add.sprite(300,200,'enemigo');
+      this._trineo = this.game.add.sprite(900,900,'trineo');
+      this._trineo.scale.setTo(0.2,0.2);
      this._enemyrush.scale.setTo(0.08,0.08);
      //this._rush.scale.setTo(2.3,2.3);
     
@@ -486,7 +490,7 @@ var PlayScene = {
 
 };
   function DropPresent(){ 
-    	
+    		console.log(this._rush.x +' '+ this._rush.y);
     	
     	  	var regali = regalitos.create(this._rush.x,this._rush.y,'regalo');    
     	  	regali.scale.setTo(2,2);
@@ -506,14 +510,23 @@ var PlayScene = {
     	  
     }
     function newPremio(regalo){
-    	puntos++;
+    	
     	regalo.kill();
-    	scoreText.text = 'Score = ' + puntos;
-    	if(puntos === 10)
-    		this.game.state.start('gg');
+    	if (regalo.x > coor+100){
+    	coor = regalo.x;
+    	puntos++;
+
+    }
+    	scoreText.text = 'Score = ' + puntos +'/12';
+    	if(puntos === 12)
+    		puedeganar = true;
+    		
     }
     function Pause(){
     	this.game.paused = !this.game.paused;
+    }
+    function gana(){
+    	this.game.state.start('gg');
     }
 
 module.exports = PlayScene;
