@@ -42,12 +42,12 @@ var PreloaderScene = {
       //la imagen 'images/simples_pimples.png' con el nombre de la cache 'tiles' y
       // el atlasJSONHash con 'images/rush_spritesheet.png' como imagen y 'images/rush_spritesheet.json'
       //como descriptor de la animación.
-      this.game.load.tilemap('tilemap','images/map.json', null, Phaser.Tilemap.TILED_JSON);
+      this.game.load.tilemap('tilemap','images/mapa.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/simples_pimples.png');
       this.game.load.image('roca', 'images/roca.png');
-      this.game.load.image('chimeneas', 'images/Tileset.png');
-      this.game.load.image('madera', 'images/Tileset1.png');
-      this.game.load.image('ladrillos', 'images/casa.jpg');
+      this.game.load.image('chimeneas', 'images/chimenea.png');
+      this.game.load.image('madera', 'images/madera.png');
+      this.game.load.image('ladrillos', 'images/casa.jpeg');
       this.game.load.image('bb','images/baby.jpg');
        this.game.load.image('happy','images/happy.jpg');
      this.game.load.image('trineo','images/trineo.png');
