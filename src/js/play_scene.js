@@ -16,8 +16,8 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 var PlayScene = {
     _rush: {}, //player
     _speed: 300, //velocidad del player
-    _jumpSpeed: 700, //velocidad de salto
-    _jumpHight: 150, //altura máxima del salto.
+    _jumpSpeed: 600, //velocidad de salto
+    _jumpHight: 100, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
 
@@ -26,9 +26,9 @@ var PlayScene = {
     //Método constructor...
   create: function () {
   	puntos = 0;
-  	regalitos = this.game.add.group();
-  	caparazonitos = this.game.add.group();
-  	scoreText = this.game.add.text(16, 1000, 'Score: 0', { fontSize: '32px', fill: '#000' });
+  	 coor = 0;
+  	  this._fondo = this.game.add.sprite(0,-150,'fondo');
+  	scoreText = this.game.add.text(16, 1000, 'Score = 0/12', { fontSize: '32px', fill: '#000' });
 
   	scoreText.fixedToCamera=true;
   	scoreText.cameraOffset.setTo(10,10);
@@ -38,9 +38,12 @@ var PlayScene = {
       //Creamos al player con un sprite por defecto.
      // regalos = game.add.group();
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
-      this._rush = this.game.add.sprite(100,0,'rush');
+
+     this._rush = this.game.add.sprite(100,0,'rush');
+regalitos = this.game.add.group();
+  	caparazonitos = this.game.add.group();
+      this._trineo = this.game.add.sprite(3050,178,'trineo');
      
-      this._trineo = this.game.add.sprite(900,900,'trineo');
       this._trineo.scale.setTo(0.2,0.2);
     
      this._rush.scale.setTo(0.5,0.5);
@@ -54,7 +57,7 @@ var PlayScene = {
     
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
       this.map = this.game.add.tilemap('tilemap');
-    //  this.map.addTilesetImage('patrones','tiles');
+    
       this.map.addTilesetImage('kek','madera');
       this.map.addTilesetImage('casa','ladrillos');
       this.map.addTilesetImage('Tileset','chimeneas');
@@ -62,7 +65,6 @@ var PlayScene = {
 
 
 
-console.log(this.game.camera);
       //Creacion de las layers
     this.backgroundLayer = this.map.createLayer('BackGroundLayer');
      this.groundLayer2 = this.map.createLayer('GroundLayer2');
@@ -72,10 +74,10 @@ console.log(this.game.camera);
       //plano de muerte
       this.death = this.map.createLayer('Death');
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
-      this.map.setCollisionBetween(1, 50000, true, 'Death');
-      this.map.setCollisionBetween(1, 50000, true, 'Chimeneas');
-      this.map.setCollisionBetween(1, 50000, true, 'GroundLayer');
-      this.map.setCollisionBetween(1, 50000, true, 'GroundLayer2');
+      this.map.setCollisionBetween(1, 5000, true, 'Death');
+      this.map.setCollisionBetween(1, 5000, true, 'Chimeneas');
+      this.map.setCollisionBetween(1, 5000, true, 'GroundLayer');
+      this.map.setCollisionBetween(1, 5000, true, 'GroundLayer2');
       //this.death.visible = false;
       //Cambia la escala a x3.
      
@@ -98,7 +100,7 @@ console.log(this.game.camera);
 
       this.configure();
       this.groundLayer.resizeWorld();
-     // debug.log(this.groundLayer.scale());
+     
       this.death.resizeWorld();
       this.groundLayer2.resizeWorld();
 
@@ -119,6 +121,7 @@ console.log(this.game.camera);
 		this.game.physics.arcade.collide(this.death,regalitos,perderRegalo,null,this);
 		this.game.physics.arcade.collide(this._rush,caparazonitos,pierde,null,this);
 		this.game.physics.arcade.collide(this.chimeneasLayer,regalitos,newPremio,null,this);
+		this.game.physics.arcade.overlap(this._rush,this._trineo,gana,null,this);
 
         var movement = this.GetMovement();
       
@@ -171,7 +174,7 @@ console.log(this.game.camera);
         switch(this._playerState){
                 
             case PlayerState.STOP:
-                moveDirection.x = 0;
+                moveDirection.x /= 2;
                 break;
             case PlayerState.JUMP:
             case PlayerState.RUN:
@@ -186,12 +189,10 @@ console.log(this.game.camera);
                     if(this._rush.scale.x > 0)
                         this._rush.scale.x *= -1; 
                 }
-                else {
-                	moveDirection.x = 0;
-                }
+               
                 if(this._playerState === PlayerState.JUMP)
                     moveDirection.y = -this._jumpSpeed;
-                if(this._playerState === PlayerState.FALLING)
+               if(this._playerState === PlayerState.FALLING)
                     moveDirection.y = 0;
                 break;    
         }
@@ -249,6 +250,7 @@ console.log(this.game.camera);
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.stage.backgroundColor = '#c9f0ff';
         this.game.physics.arcade.enable(this._rush);
+        this.game.physics.arcade.enable(this._trineo);
        
     
         
@@ -266,6 +268,7 @@ console.log(this.game.camera);
         if((this._rush.x < xMin && point.x < 0)|| (this._rush.x > xMax && point.x > 0))
             this._rush.body.velocity.x = 0;
 
+
     },
     destroy: function(){
         
@@ -280,7 +283,7 @@ console.log(this.game.camera);
   function DropPresent(){ 
     		console.log(this._rush.x +' '+ this._rush.y);
     	  	var regali = regalitos.create(this._rush.x,this._rush.y+10,'regalo');    
-    	  	//regali.scale.setTo(2,2);
+    	  	
     	  	 this.game.physics.arcade.enable(regali);
    			 regali.body.gravity.y = 1000;
    			 regali.body.bounce.setTo(0.3,0.3);
@@ -324,7 +327,10 @@ console.log(this.game.camera);
     	this.game.paused = !this.game.paused;
     }
     function gana(){
+    	if (puedeganar)
     	this.game.state.start('gg');
+    else
+    	this.game.state.start('gameOver');
     }
     function pierde(){
     	this.game.state.start('gameOver');

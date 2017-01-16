@@ -49,7 +49,8 @@ var PreloaderScene = {
       this.game.load.image('madera', 'images/madera.png');
       this.game.load.image('ladrillos', 'images/casa.jpeg');
       this.game.load.image('bb','images/baby.jpg');
-       this.game.load.image('happy','images/happy.jpg');
+      this.game.load.image('fondo','images/fondo.png');
+      this.game.load.image('happy','images/happy.jpg');
      this.game.load.image('trineo','images/trineo.png');
       this.game.load.image('regalo','images/Present_sprite.png');
       this.game.load.image('enemigo','images/caparazon.png');
