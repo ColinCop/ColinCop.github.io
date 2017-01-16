@@ -118,12 +118,14 @@ var PreloaderScene = {
       this.game.load.image('madera', 'images/madera.png');
       this.game.load.image('ladrillos', 'images/casa.jpeg');
       this.game.load.image('bb','images/baby.jpg');
-      this.game.load.image('fondo','images/fondo.png');
+      this.game.load.image('fondo','images/fond.png');
       this.game.load.image('happy','images/happy.jpg');
      this.game.load.image('trineo','images/trineo.png');
       this.game.load.image('regalo','images/Present_sprite.png');
       this.game.load.image('enemigo','images/caparazon.png');
       this.game.load.image('rush','images/santa.png');
+      this.game.load.image('elfo','images/elfito.png');
+      this.game.load.image('martillo','images/martillo.png');
       //this.game.load.atlas('rush', 'images/rush_spritesheet.png', 'images/rush_spritesheet.json' ,Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       //TODO 2.2a Escuchar el evento onLoadComplete con el mismo método loadComplete que el state 'play'
       this.load.onLoadComplete.add(this.loadComplete, this);
@@ -223,10 +225,14 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 
  var regalitos;
  var caparazonitos;
+ var martillitos;
  var puntos = 0;
  var scoreText;
+ var lifeText 
  var coor = 0;
  var puedeganar = false;
+ var numChimeneas;
+ var elfo = true;
 //Scena de juego.
 var PlayScene = {
     _rush: {}, //player
@@ -240,13 +246,20 @@ var PlayScene = {
 
     //Método constructor...
   create: function () {
+  
+  
+  	numChimeneas = 12;
   	puntos = 0;
   	 coor = 0;
   	  this._fondo = this.game.add.sprite(0,-150,'fondo');
+  	  this._fondo.fixedToCamera = true;
+  	  this._fondo.cameraOffset.setTo(0,0);
+  	
   	scoreText = this.game.add.text(16, 1000, 'Score = 0/12', { fontSize: '32px', fill: '#000' });
-
   	scoreText.fixedToCamera=true;
   	scoreText.cameraOffset.setTo(10,10);
+
+  	
 
 
   
@@ -254,21 +267,29 @@ var PlayScene = {
      // regalos = game.add.group();
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
 
-     this._rush = this.game.add.sprite(100,0,'rush');
+     this._rush = this.game.add.sprite(25,0,'rush');
+    // this._rush = this.game.add.sprite(3000,0,'rush');
+     this._rush.collideWorldBounds = true;
+    /* this._elfo = this.game.add.sprite(2950,250,'elfo');
+      this._elfo.scale.setTo(0.8,0.8);*/
+
+      createElf(2950,250,this.game);
 regalitos = this.game.add.group();
   	caparazonitos = this.game.add.group();
+  	martillitos = this.game.add.group();
       this._trineo = this.game.add.sprite(3050,178,'trineo');
      
       this._trineo.scale.setTo(0.2,0.2);
     
      this._rush.scale.setTo(0.5,0.5);
+     this._rush.anchor.setTo(0.5,0.5);
 
 
      createCaparazon(808,250,this.game);
     createCaparazon(1158,263,this.game);
     createCaparazon(1460,263,this.game);
     createCaparazon(1875,295,this.game);
-    createCaparazon(3046,263,this.game);
+   
     
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
       this.map = this.game.add.tilemap('tilemap');
@@ -308,8 +329,11 @@ regalitos = this.game.add.group();
                      Phaser.Animation.generateFrameNames('rush_jump',2,2,'',2),0,false);
                      */
     var key1 = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+   // if(this._rush.martillos<=0)
     key1.onDown.add(DropPresent, this);
-
+/*else if (this._rush.martillos > 0)
+	 key1.onDown.add(DropMartillo, this);
+*/
      var key2 = this.game.input.keyboard.addKey(Phaser.Keyboard.ESCAPE);
     key2.onDown.add(Pause, this);
 
@@ -335,10 +359,16 @@ regalitos = this.game.add.group();
        
 		this.game.physics.arcade.collide(this.death,regalitos,perderRegalo,null,this);
 		this.game.physics.arcade.collide(this._rush,caparazonitos,pierde,null,this);
+		this.game.physics.arcade.collide(this._rush,martillitos,pierde,null,this);
 		this.game.physics.arcade.collide(this.chimeneasLayer,regalitos,newPremio,null,this);
 		this.game.physics.arcade.overlap(this._rush,this._trineo,gana,null,this);
+		this.game.physics.arcade.overlap(this.game.elfo,this._rush,muerteElfo,null,this);
+		
+		
 
         var movement = this.GetMovement();
+
+        
       
       
       
@@ -401,8 +431,9 @@ regalitos = this.game.add.group();
                 }
                 else if (movement === Direction.LEFT){
                     moveDirection.x = -this._speed;
-                    if(this._rush.scale.x > 0)
+                    if(this._rush.scale.x > 0){
                         this._rush.scale.x *= -1; 
+                }
                 }
                
                 if(this._playerState === PlayerState.JUMP)
@@ -466,6 +497,7 @@ regalitos = this.game.add.group();
         this.game.stage.backgroundColor = '#c9f0ff';
         this.game.physics.arcade.enable(this._rush);
         this.game.physics.arcade.enable(this._trineo);
+        this.game.physics.arcade.enable(this.game.elfo);
        
     
         
@@ -478,7 +510,7 @@ regalitos = this.game.add.group();
     },
     //move the player
     movement: function(point, xMin, xMax){
-        this._rush.body.velocity = point;// * this.game.time.elapseTime;
+        this._rush.body.velocity = point;
         
         if((this._rush.x < xMin && point.x < 0)|| (this._rush.x > xMax && point.x > 0))
             this._rush.body.velocity.x = 0;
@@ -497,7 +529,7 @@ regalitos = this.game.add.group();
 };
   function DropPresent(){ 
     		console.log(this._rush.x +' '+ this._rush.y);
-    	  	var regali = regalitos.create(this._rush.x,this._rush.y+10,'regalo');    
+    	  	var regali = regalitos.create(this._rush.x-15,this._rush.y-10,'regalo');    
     	  	
     	  	 this.game.physics.arcade.enable(regali);
    			 regali.body.gravity.y = 1000;
@@ -510,6 +542,7 @@ regalitos = this.game.add.group();
     	  
    
     }
+    
     function createCaparazon( x, y, xd){
 
     	  	var caparazoni = caparazonitos.create(x,y,'enemigo');
@@ -521,6 +554,27 @@ regalitos = this.game.add.group();
     	  	caparazoni.body.velocity.x = 200;
 
     }
+
+    function createElf( x, y, xd){
+
+    	  	 xd.elfo = xd.add.sprite(x,y,'elfo');
+    	  	xd.elfo.scale.setTo(0.8,0.8);
+    	  	xd.physics.arcade.enable(xd.elfo);
+    setTimeout(function(){createMartillo(x,y,xd)},3000);
+
+    }
+    function createMartillo(x,y,xd){
+var martilli = martillitos.create(x,y,'martillo');
+    	  	xd.physics.arcade.enable(martilli);
+    	  	martilli.body.velocity.setTo(xd.rnd.integerInRange(-80, -150),xd.rnd.integerInRange(-80, -150));
+    	  	martilli.body.gravity.y = 200;
+    	
+    	  	setTimeout(function(){martilli.destroy()},2000);
+    	  	if(elfo)
+    	  	 setTimeout(function(){createMartillo(x,y,xd)},2000);
+    }
+
+
     function perderRegalo(regalo){ 
     	regalo.kill();
     	  
@@ -534,7 +588,7 @@ regalitos = this.game.add.group();
 
     }
     	scoreText.text = 'Score = ' + puntos +'/12';
-    	if(puntos === 12)
+    	if(puntos === numChimeneas)
     		puedeganar = true;
     		
     }
@@ -550,6 +604,13 @@ regalitos = this.game.add.group();
     function pierde(){
     	this.game.state.start('gameOver');
     }
+    function muerteElfo(elf){
+    	elf.destroy();
+    	elfo = false;
+    }
+   
+   
+
 
 module.exports = PlayScene;
 
