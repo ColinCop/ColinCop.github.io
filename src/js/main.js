@@ -54,8 +54,13 @@ var PreloaderScene = {
      this.game.load.image('trineo','images/trineo.png');
       this.game.load.image('regalo','images/Present_sprite.png');
       this.game.load.image('enemigo','images/caparazon.png');
-      this.game.load.image('rush','images/santa.png');
-      this.game.load.image('elfo','images/elfito.png');
+       this.game.load.audio('musicafondo','audio/santaclaus.ogg');
+       this.game.load.audio('chek','audio/chimenea.ogg');
+       this.game.load.audio('gover','audio/llanto.ogg');
+   //   this.game.load.image('rush','images/santa.png');
+      this.game.load.atlas('rush', 'images/santasprite1.png', 'images/santasprite1.json' ,Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
+      this.game.load.atlas('elfo', 'images/elf.png', 'images/elf.json' ,Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
+     // this.game.load.image('elfo','images/elfito.png');
       this.game.load.image('martillo','images/martillo.png');
       //this.game.load.atlas('rush', 'images/rush_spritesheet.png', 'images/rush_spritesheet.json' ,Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       //TODO 2.2a Escuchar el evento onLoadComplete con el mismo método loadComplete que el state 'play'

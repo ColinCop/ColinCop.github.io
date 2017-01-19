@@ -16,6 +16,7 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
  var puedeganar = false;
  var numChimeneas;
  var elfo = true;
+ var self;
 //Scena de juego.
 var PlayScene = {
     _rush: {}, //player
@@ -29,8 +30,8 @@ var PlayScene = {
 
     //Método constructor...
   create: function () {
-  
-  
+  self = this;
+  var elfo = true;
   	numChimeneas = 12;
   	puntos = 0;
   	 coor = 0;
@@ -82,7 +83,11 @@ regalitos = this.game.add.group();
       this.map.addTilesetImage('Tileset','chimeneas');
       this.map.addTilesetImage('roca','roca');
 
-
+this.musfondo = this.game.add.audio('musicafondo');
+this.chek = this.game.add.audio('chek');
+this.gover = this.game.add.audio('gover');
+this.musfondo.loop = true;
+this.musfondo.play();
 
       //Creacion de las layers
     this.backgroundLayer = this.map.createLayer('BackGroundLayer');
@@ -101,16 +106,14 @@ regalitos = this.game.add.group();
       //Cambia la escala a x3.
      
       
-      //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
+      //this.groundLayer.resiz eWorld(); //resize world and adjust to the screen
       
-      //nombre de la animación, frames, framerate, isloop
-     /* this._rush.animations.add('run',
-                    Phaser.Animation.generateFrameNames('rush_run',1,5,'',2),10,true);
+      //nombre de la animación, frames, framerate, isloop 
+     this._rush.animations.add('run',
+                    Phaser.Animation.generateFrameNames('sprite',1,16,'',2),10,true);
       this._rush.animations.add('stop',
-                    Phaser.Animation.generateFrameNames('rush_idle',1,1,'',2),0,false);
-      this._rush.animations.add('jump',
-                     Phaser.Animation.generateFrameNames('rush_jump',2,2,'',2),0,false);
-                     */
+                    Phaser.Animation.generateFrameNames('sprite',13,14,'',2),4,false);
+     
     var key1 = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
    // if(this._rush.martillos<=0)
     key1.onDown.add(DropPresent, this);
@@ -164,7 +167,7 @@ regalitos = this.game.add.group();
                 if(this.isJumping(collisionWithTilemap,collisionWithTilemap1,collisionWithTilemap2)){
                     this._playerState = PlayerState.JUMP;
                     this._initialJumpHeight = this._rush.y;
-                    this._rush.animations.play('jump');
+                   
                 }
                 else{
                     if(movement !== Direction.NONE){
@@ -239,6 +242,8 @@ regalitos = this.game.add.group();
     
     onPlayerFell: function(){
         //TODO 6 Carga de 'gameOver';
+        this.musfondo.stop();
+        this.gover.play();
         this.game.state.start('gameOver');
     },
     
@@ -304,6 +309,7 @@ regalitos = this.game.add.group();
         
         this.tilemap.destroy();
         this.tiles.destroy();
+        this.musfondo.stop();
        // this.game.world.setBounds(0,0,800,600);
        
     }
@@ -344,6 +350,9 @@ regalitos = this.game.add.group();
     	  	xd.elfo.scale.setTo(0.8,0.8);
     	  	xd.physics.arcade.enable(xd.elfo);
     setTimeout(function(){createMartillo(x,y,xd)},3000);
+    xd.elfo.animations.add('stop',
+                    Phaser.Animation.generateFrameNames('sprite',1,4),4,true);
+    xd.elfo.animations.play('stop');
 
     }
     function createMartillo(x,y,xd){
@@ -366,6 +375,7 @@ var martilli = martillitos.create(x,y,'martillo');
     	
     	regalo.kill();
     	if (regalo.x > coor+100){
+        self.chek.play();
     	coor = regalo.x;
     	puntos++;
 
@@ -376,15 +386,23 @@ var martilli = martillitos.create(x,y,'martillo');
     		
     }
     function Pause(){
-    	this.game.paused = !this.game.paused;
+    	this.game.paused =! this.game.paused;
     }
     function gana(){
     	if (puedeganar)
+      {
+        this.musfondo.stop();
     	this.game.state.start('gg');
-    else
+    }
+    else{
+       this.musfondo.stop();
+       this.gover.play();
     	this.game.state.start('gameOver');
     }
+    }
     function pierde(){
+       this.musfondo.stop();
+       this.gover.play();
     	this.game.state.start('gameOver');
     }
     function muerteElfo(elf){
