@@ -123,6 +123,7 @@ var PreloaderScene = {
      this.game.load.image('trineo','images/trineo.png');
       this.game.load.image('regalo','images/Present_sprite.png');
       this.game.load.image('enemigo','images/caparazon.png');
+
        this.game.load.audio('musicafondo','audio/santaclaus.ogg');
        this.game.load.audio('chek','audio/chimenea.ogg');
        this.game.load.audio('gover','audio/llanto.ogg');
@@ -231,6 +232,7 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
  var regalitos;
  var caparazonitos;
  var martillitos;
+
  var puntos = 0;
  var scoreText;
  var lifeText 
@@ -280,9 +282,11 @@ var PlayScene = {
       this._elfo.scale.setTo(0.8,0.8);*/
 
       createElf(2950,250,this.game);
-regalitos = this.game.add.group();
+
+    regalitos = this.game.add.group();
   	caparazonitos = this.game.add.group();
   	martillitos = this.game.add.group();
+
       this._trineo = this.game.add.sprite(3050,178,'trineo');
      
       this._trineo.scale.setTo(0.2,0.2);
@@ -365,11 +369,12 @@ this.musfondo.play();
         this.game.physics.arcade.collide(caparazonitos, this.groundLayer2);
         this.game.physics.arcade.collide(caparazonitos, this.chimeneasLayer);
        
-		this.game.physics.arcade.collide(this.death,regalitos,perderRegalo,null,this);
+		this.game.physics.arcade.collide(regalitos,this.death,perderRegalo,null,this);
 		this.game.physics.arcade.collide(this._rush,caparazonitos,pierde,null,this);
 		this.game.physics.arcade.collide(this._rush,martillitos,pierde,null,this);
 		this.game.physics.arcade.collide(this.chimeneasLayer,regalitos,newPremio,null,this);
 		this.game.physics.arcade.overlap(this._rush,this._trineo,gana,null,this);
+
 		this.game.physics.arcade.overlap(this.game.elfo,this._rush,muerteElfo,null,this);
 		
 		
@@ -538,8 +543,9 @@ this.musfondo.play();
     //TODO 9 destruir los recursos tilemap, tiles y NO(logo).
 
 };
+
   function DropPresent(){ 
-    		console.log(this._rush.x +' '+ this._rush.y);
+    	//	console.log(this._rush.x +' '+ this._rush.y);
     	  	var regali = regalitos.create(this._rush.x-15,this._rush.y-10,'regalo');    
     	  	
     	  	 this.game.physics.arcade.enable(regali);
